@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>webSocket Tetris</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.3/socket.io.js"></script>
+</head>
+
+<body>
+    <h1>Chat Room</h1>
+    <input id="sendTxt" type="text"></input>
+    <button id="sendBtn">发送</button>
+    <script type="text/javascript">
+    // 实例化socket.io
+    var socket = io("ws://localhost:3000/");
+
+    // 简易的封装信息并处理后台返回和前台发送的信息，并追加至html中
+    function showMessage(str, type) {
+    	// 创建一个div
+        var div = document.createElement("div");
+        // 插入data
+        div.innerHTML = str;
+        // 由定义的key进行数据处理
+        if (type == "enter") {
+            div.style.color = "blue";
+        } else if (type == "leave") {
+            div.style.color = "red";
+        }
+        // 追加至html中
+        document.body.appendChild(div);
+    }
+
+    // 获取到发送按钮+点击事件
+    document.getElementById("sendBtn").onclick = function() {
+    	// 拿到input值
+        var txt = document.getElementById("sendTxt").value;
+        // 如果有值,就发送到后台中
+        if (txt) {
+        	// 发送数据，key为message，后台服务器应使用on key：message进行接收
+            socket.emit("message", txt);
+        }
+    }
+
+    // socket响应数据
+    socket.on("enter", function(data) {
+        showMessage(data, "enter");
+    })
+
+    socket.on("message", function(data) {
+        showMessage(data, "message");
+    })
+
+    socket.on("leave", function(data) {
+        showMessage(data, "leave");
+    })
+    </script>
+</body>
+
+</html>
